@@ -18,10 +18,11 @@ class User(db.Model, SerializerMixin):
 
     user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(40), nullable=False)
+    email = db.Column(db.String(100), nullable=False)
     password = db.Column(db.String(50), nullable=False)
 
-    characters = db.relationship( 'Character', backref='user' )
-    groups = db.relationship( 'Group', backref='user' )
+    characters = db.relationship( 'Character', backref='user' ) ## when getting a user it shows a table of all associated characters??
+    groups = db.relationship( 'Group', backref='user' ) ## when getting a user it shows a table of all associated groups??
 
     @validates('password')
     def validate_password(self, key, password):
@@ -51,7 +52,7 @@ class Character(db.Model, SerializerMixin):
     character_race = db.Column(db.String, nullable=False)
     character_class = db.Column(db.String, nullable=False)
 
-    user = db.Column(db.String, ForeignKey='user',)
+    user = db.Column(db.String, db.ForeignKey('users.user_id'), nullable = False)
 
     character_group = db.relationship( 'CharacterGroup', backref='character' )
 
@@ -85,8 +86,8 @@ class CharacterGroup(db.Model, SerializerMixin):
     serialize_rules = ( 'character_group', ) #TODO
 
     character_group_id = db.Column(db.Integer, primary_key=True)
-    character_id = db.Column(db.Integer, ForeignKey='character', nullable=False)
-    group_id = db.Column(db.Integer, ForeignKey='group', nullable=False)
+    character_id = db.Column(db.Integer, db.ForeignKey('characters.character_id'), nullable=False)
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.group_id'), nullable=False)
 
 ### does this need any validations? or just in app to check post errors.
 
@@ -101,11 +102,12 @@ class Group(db.Model, SerializerMixin):
 
     group_id = db.Column(db.Integer, primary_key=True)
     group_name = db.Column(db.String(75), nullable=False)
-    user_id = db.Column(db.Integer, ForeignKey='user') ###TODO I really want the Username here dont I?
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id')) ###TODO I really want the Username here dont I?
 
     character_group = db.relationship( 'CharacterGroup', backref='character_groups', cascade='all, delete-orphan' )
     characters = db.relationship( 'Character', secondary='character_groups', backref='characters')
     #TODO Do I need to create a relationship to see a groups users? how from here
+    #TODO Do i need a back populates?
 
     @validates('group_name')
     def validate_character_name(self, key, group_name):
@@ -113,10 +115,10 @@ class Group(db.Model, SerializerMixin):
             raise ValueError("Must provide a name for your character")
         return group_name
     
-    @validates('user_id')
-    def validate_user_id(self, key, user_id):
-        if user_id == None:
-            raise ValueError("You must be an authenticated user")
-        return user_id
-
+    # @validates('user_id')
+    # def validate_user_id(self, key, user_id):
+    #     if user_id == None:
+    #         raise ValueError("You must be an authenticated user")
+    #     return user_id
+### is this where I need to figure out auth for this
 
