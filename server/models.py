@@ -117,7 +117,7 @@ class Group(db.Model, SerializerMixin):
     
     # @validates('user_id')
     # def validate_user_id(self, key, user_id):
-    #     if user_id == None:
+    #     if user_id == None:       ### we do not care about id but the state of the login??
     #         raise ValueError("You must be an authenticated user")
     #     return user_id
 ### is this where I need to figure out auth for this
