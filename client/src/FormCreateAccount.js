@@ -1,25 +1,72 @@
 import React, {useState} from "react"
-import Button from 'react-bootstrap/Button'
-import Form from 'react-bootstrap/Form'
+import { useFormik } from 'formik'
+import * as yup from 'yup'
+
 
 
 
 function FormCreateAccount() {
 
 
+    const [ signUp, setSignUp ] = useState(false)
+    const history = useHistory()
 
-    return (
-        <Form className='addForm' onSubmit={handleSubmit}>
-        <div>
-            <Form.Control onChange={handleUsername} type='text' name='Username' placeholder='Username'/>
-            <Form.Control onChange={handleEmail} type='text' name='Email' placeholder='Email'/>
-            <Form.Control onChange={handlePassword} type='text' name='title' placeholder='Password'/>
-            <Form.Control onChange={handlePasswordConfirmation} type='text' name='title' placeholder='Password Confirmation'/>
-        </div>
-        <Button className='add-button' type='submit'>Add A Character</Button>
-        <Button className='add-button' onClick={handleHideForm}>Close Form</Button>
-    </Form>
-    )
+    const handleClick = () => setSignUp((signUp) => !signUp)
+
+
+
+
+
+
+    const formSchema = yup.object().shape({
+        username: yup.string().required('Please enter a username'),
+        email: yup.string().email(),
+        password: yup.string()
+    })
+
+    const formik = useFormik({
+        initialValues:{
+            name:'',
+            email:'',
+            password:''
+        },
+        validationSchema:formSchema,
+        onSubmit:(values) => {
+            fetch(signUp?'/users':'/login',{
+                method: 'POST',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify(values)
+            })
+
+        }
+    })
+
+        return (
+            <>
+            <h2>Please Log in or Sign up!</h2>
+            <h2>{signUp?'Already a member?':'Not a member?'}</h2>
+            <button onClick={handleClick}>{signUp?'Log in!':'Register now!'}</button>
+            
+            <Form className='login-create' onSubmit={formik.handleSubmit}>
+                <div>
+                    {signUp?(
+                        <>
+                        <input onChange={formik.handleChange} type='text' value={formik.values.username} name='Username' placeholder='Username'/>
+                        <input onChange={formik.handleChange} type='text' value={formik.values.email} name='Email' placeholder='Email'/>
+                        <input onChange={formik.handleChange} type='text' value={formik.values.password} name='title' placeholder='Password'/>
+                        </>
+                    ):
+                        <>
+                        <input onChange={formik.handleChange} type='text' value={formik.values.email} name='Email' placeholder='Email'/>
+                        <input onChange={formik.handleChange} type='text' value={formik.values.password} name='title' placeholder='Password'/>
+                        </>
+                    }
+                </div>
+            </Form>
+            </>
+        )
 }
 
 export default FormCreateAccount;
