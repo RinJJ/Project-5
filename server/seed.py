@@ -18,6 +18,8 @@ if __name__ == '__main__':
         session.query(CharacterGroup).delete()
         session.query(Group)
 
+        
+
 
 
 

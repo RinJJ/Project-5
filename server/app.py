@@ -43,8 +43,9 @@ class User(Resource):
             )
             db.session.add( new_user )
             db.session.commit()
+            session['user_id'] = new_user.user_id  ### if it doesnt work check ix auth video #1 @17:00 user_id is what i called id in models
             new_user_dict = new_user.to_dict()
-            return make_response(new_user_dict, 200)
+            return make_response(new_user_dict, 201)
         except Exception as e:
             db.session.rollback()
             return make_response( { 'Error' : str(e) }, 422 )
@@ -316,6 +317,21 @@ class CharacterGroupById(Resource):
             return make_response( { "error" : str(e) }, 422 )
 
 api.add_resource(CharacterGroupById, '/CharacterGroups/<int:id>')
+
+class Login(Resource):
+    pass
+
+api.add_resource(Login, '/Login')
+
+class Logout(Resource):
+    def delete(self):
+        session['user_id'] = None
+        response = make_response('',204)
+        return response
+
+api.add_resource(Logout, '/Logout')
+
+
 
 
 
