@@ -3,7 +3,7 @@ from sqlalchemy import MetaData
 from sqlalchemy.orm import validates
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy_serializer import SerializerMixin
-from config import db
+from config import db, bcrypt
 
 
 #TODO: Clarify all serializer methods as well as make sure my models have the correct relationships because my brain is having a hard time for some reason
@@ -19,10 +19,12 @@ class User(db.Model, SerializerMixin):
     user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(40), nullable=False)
     email = db.Column(db.String(100), nullable=False)
-    password = db.Column(db.String(50), nullable=False)
+    _password_hash = db.Column(db.String)
+
 
     characters = db.relationship( 'Character', backref='user' ) ## when getting a user it shows a table of all associated characters??
     groups = db.relationship( 'Group', backref='user' ) ## when getting a user it shows a table of all associated groups??
+
 
     @validates('password')
     def validate_password(self, key, password):
@@ -36,6 +38,13 @@ class User(db.Model, SerializerMixin):
             raise ValueError("Must provide a valid email")
         return email
 
+    @hybrid_property
+    def password_hash(self):
+        return self._password_hash
+    
+    @password_hash.setter
+    def password_hash(self, password):
+        
 
 
 

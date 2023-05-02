@@ -1,7 +1,8 @@
 from flask import Flask, request, make_response, session
+from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
-from config import app, db, api
+from config import app, db, api, bcrypt
 from models import *
 
 
@@ -11,7 +12,7 @@ from models import *
 
 
 
-
+app.secret_key = b'\x0e8.\xe0[\xdf\x01\x06\xc3\x8e\xf3\xeb\xdb\x0c\x7f\x88'
 
 class Home(Resource):
     def get(self):
@@ -319,7 +320,14 @@ class CharacterGroupById(Resource):
 api.add_resource(CharacterGroupById, '/CharacterGroups/<int:id>')
 
 class Login(Resource):
-    pass
+    def post(self):
+        try:
+            user = User.query.filter_by(user_id=request.get_json()['user_id']).first()
+            session['user_id'] = user.user_id  ###named this way due to how the tables are setup?
+            response = make_response(user.to_dict(), 200)
+            return response
+        except:  ### here we need to ad the password validations
+            pass
 
 api.add_resource(Login, '/Login')
 
@@ -330,6 +338,19 @@ class Logout(Resource):
         return response
 
 api.add_resource(Logout, '/Logout')
+
+class AuthorizedSession(Resource):
+    def get(self):
+        user = User.query.filter_by(user_id=session.get('user_id')).first()
+        if user:
+            response = make_response(
+                user.to_dict(), 200
+            )
+            return response
+        else:
+            return make_response( { 'Unauthorized': 401 } )
+
+api.add_resource(AuthorizedSession, 'authorized')
 
 
 
