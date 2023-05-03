@@ -319,6 +319,12 @@ class CharacterGroupById(Resource):
 
 api.add_resource(CharacterGroupById, '/CharacterGroups/<int:id>')
 
+
+
+
+
+
+
 class Login(Resource):
     def post(self):
         try:
@@ -350,7 +356,7 @@ class AuthorizedSession(Resource):
         else:
             return make_response( { 'Unauthorized': 401 } )
 
-api.add_resource(AuthorizedSession, 'authorized')
+api.add_resource(AuthorizedSession, '/authorized')
 
 
 

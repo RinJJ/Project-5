@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from sqlalchemy.orm import validates
 from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from sqlalchemy_serializer import SerializerMixin
 from config import db, bcrypt
 
@@ -26,11 +27,7 @@ class User(db.Model, SerializerMixin):
     groups = db.relationship( 'Group', backref='user' ) ## when getting a user it shows a table of all associated groups??
 
 
-    @validates('password')
-    def validate_password(self, key, password):
-        if password == "":
-            raise ValueError("Must provide a password")
-        return password
+
     
     @validates('email')
     def validate_email(self, key, email):
@@ -44,7 +41,12 @@ class User(db.Model, SerializerMixin):
     
     @password_hash.setter
     def password_hash(self, password):
-        
+        password_hash = bcrypt.generate_password_hash(password.encode('utf-8'))
+        self._password_hash = password_hash.decode('utf-8')
+
+    def authenticate(self, password):
+        return bcrypt.check_password_hash(self._password_hash, password.encode('utf-8'))
+
 
 
 

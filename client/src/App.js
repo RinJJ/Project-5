@@ -21,7 +21,23 @@ function App() {
     
     const [user, setUser] = useState(null);
 
+    const updateUser = (user) => setUser(user)
 
+    useEffect(() => {
+        fetchUser()
+    }, [])
+
+
+    const fetchUser = () => {
+        fetch('/authorized')
+        .then(r => {
+            if(r.ok){
+                r.json().then(user=>setUser(user))
+            }else {
+                setUser(null)
+            }
+        })
+    }
 
 
 
@@ -37,7 +53,7 @@ function App() {
             <div>
                 <Switch>
                     <Route path='/LoginCreate'>
-                        <PageLogin className=''/>
+                        <PageLogin className='' updateUser={updateUser}/>
                     </Route>
                     <Route path='/MyCharacters'>
                         <PageMyCharacters className=''/>

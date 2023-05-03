@@ -4,7 +4,7 @@ import Navbar from 'react-bootstrap/Navbar'
 
 
 
-function NavBar() {
+function NavBar({updateUser}) {
 
     const { user, setUser } = useContext(UserContext);
     const history = useHistory()
@@ -15,11 +15,8 @@ function NavBar() {
         })
         .then(r => {
             if(r.ok){
-            r.json().then(()=> {
                 setUser(null)
                 history.push('/')
-            })
-
             }
         })
     }
